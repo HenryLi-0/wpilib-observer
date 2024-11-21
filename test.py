@@ -1,4 +1,4 @@
-import requests
+import requests, time
 
 # response = requests.get("https://api.github.com/repos/wpilibsuite/allwpilib/issues")
 # print(response.status_code)
@@ -26,3 +26,28 @@ class DiscordWebhook:
         self.name = str(name)
     def reavatar(self,avatarlink):
         self.avatar = avatarlink
+
+
+data = {
+  "content": "",
+  "username": "WPILIB Observer",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png",
+  "embeds": [
+    {
+      "author": {
+        "name": "hmm",
+        "icon_url": "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png" 
+      },
+      "title": "New Thing!",
+      "url": "https://discord.com/developers/docs/resources/webhook#webhook-resource",
+      "description": "[New PR!](https://discord.com/developers/docs/resources/webhook#webhook-resource)",
+      "color": 0xffaa00,
+      "footer": {
+        "text": f"Uptime: 999 seconds"
+      }
+    }
+  ]
+}
+WEBHOOK = ""
+response = requests.post(WEBHOOK,json=data)
+print(response,response.status_code,response.request.body)

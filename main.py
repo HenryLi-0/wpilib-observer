@@ -30,13 +30,27 @@ def msg(message):
     data = {"content":(str(message)),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP}
     response = requests.post(WEBHOOK,json=data)
     return response
+def getPRs():      return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls"   ).json()
+def getIssues():   return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  ).json()
+def getReleases(): return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases").json()
+def getCommits():  return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/commits" ).json()
 
-
+lastPRs = getPRs()
+lastIssues = getIssues()
+lastReleases = getReleases()
+lastCommits = getCommits()
 
 
 
 '''loop'''
 print("  Loop starting...")
+if RPI:
+    with open(RPI_LED_PATH + "brightness", "w") as f: f.write("0")
+
+lastUpdate = time.time()
+while True:
+
+    
 
 
 
