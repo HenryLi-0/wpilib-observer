@@ -1,16 +1,16 @@
 import requests
 
-response = requests.get("https://api.github.com/repos/wpilibsuite/allwpilib/issues")
-print(response.status_code)
+# response = requests.get("https://api.github.com/repos/wpilibsuite/allwpilib/issues")
+# print(response.status_code)
 
-info = response.json()
+# info = response.json()
 
-for pr in info:
-    print(pr["title"], pr["url"])
+# for pr in info:
+#     print(pr["title"], pr["url"])
 
 
 class DiscordWebhook:
-    def __init__(self,url,webhook="    "):
+    def __init__(self,url,webhook="Webhook"):
         self.url = url
         self.name = webhook
         self.avatar = ""
@@ -26,4 +26,3 @@ class DiscordWebhook:
         self.name = str(name)
     def reavatar(self,avatarlink):
         self.avatar = avatarlink
-
