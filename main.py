@@ -43,71 +43,80 @@ def msg(message):
     data = {"content":(str(message)),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP}
     response = requests.post(WEBHOOK,json=data)
     return response
-def getPRs():      return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls"   ).json()
-def getIssues():   return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  ).json()
-def getReleases(): return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases").json()
+def getPRs():      return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls"   )
+def getIssues():   return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  )
+def getReleases(): return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases")
 
 class Storage:
     def __init__(self, data):
-        self.last = []
-        for entry in data: self.last.append([entry["title"], entry["html_url"], entry["number"], entry["user"]["login"], entry["user"]["avatar_url"], entry["created_at"]])
+        self.ids = []
+        for entry in data: self.ids.append(entry["number"])
     def compare(self, newdata):
         temp = []
-        for entry in newdata: temp.append([entry["title"], entry["html_url"], entry["number"], entry["user"]["login"], entry["user"]["avatar_url"], entry["created_at"]])
+        for entry in newdata: temp.append(entry["number"])
         new = []
         for item in temp:
-            if not(item in self.last): new.append(item)
-        self.last = temp
+            if not(item in self.ids): new.append(entry)
+        self.ids = temp
         return new
         
 
 print("  Fetching data...")
-lastPRs = Storage(getPRs())
-lastIssues = Storage(getIssues())
-lastReleases = getReleases()
+lastPRs = Storage(getPRs().json())
+lastIssues = Storage(getIssues().json())
+lastReleases = getReleases().json()
 
 '''loop'''
 print("  Loop starting...")
 if RPI:
-    with open(RPI_LED_PATH + "brightness", "w") as f: f.write("0")
+    with open(RPI_LED_PATH + "brightness", "w") as f:
+        f.write("0")
 
 initTime = time.time()
 lastUpdate = time.time()
 updates = 0
 messageQueue = []
+endLoop = False
+
+response = requests.post(WEBHOOK,json={"content":"The WPILIB Observer is observing!","username":"WPILIB Observer","avatar_url":WEBHOOK_PFP})
+
 while True:
     if time.time() - lastUpdate >= 1:
         lastUpdate = time.time()
         if updates % OBSERVE_PR == 0:
             '''PULL REQUESTS'''
-            new = lastPRs.compare()
-            for event in new:
+            # [entry["title"], entry["html_url"], entry["number"], entry["user"]["login"], entry["user"]["avatar_url"], entry["created_at"]]
+            response = getPRs()
+            if str(response.status_code)[0] == "4":
+                endLoop = True
+            new = lastPRs.compare(response.json())
+            for entry in new:
                 messageQueue.append({
-                    "content": "",
+                    "content": "<@791376513316552744>",
                     "username": "WPILIB Observer",
-                    "avatar_url": "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png",
+                    "avatar_url": WEBHOOK_PFP,
                     "embeds": [
                         {
                             "author": {
-                                "name": "",
-                                "icon_url": "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png" 
+                                "name": str(entry["user"]["login"]),
+                                "icon_url": str(entry["user"]["avatar_url"]) 
                             },
-                            "title": f"New Pull Request",
-                            "url": "https://discord.com/developers/docs/resources/webhook#webhook-resource",
-                            "description": "[New Release!](https://discord.com/developers/docs/resources/webhook#webhook-resource)",
+                            "title": "New PR #{}: {}".format(entry["number"], entry["title"]),
+                            "url": str(entry["html_url"]),
+                            "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
                             "color": 0x26E23B,
                             "footer": {
-                                "text": f"Uptime: {fancyformat(lastUpdate-initTime)}"
+                                "text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))
                             }
                         }
                     ]
                 })
         
-        if updates % OBSERVE_ISSUE == 0:
+        if updates % OBSERVE_ISSUE == 0 and False:
             '''ISSUES'''
             pass
 
-        if updates % OBSERVE_RELEASE == 0:
+        if updates % OBSERVE_RELEASE == 0 and False:
             '''RELEASES'''
 
             # TO-DO
@@ -131,19 +140,25 @@ while True:
                     }
                 ]
             })
-
-
         updates += 1
-    
+
     if len(messageQueue) > 0:
         for data in messageQueue:
             response = requests.post(WEBHOOK,json=data)
             print(f"[{round(time.time()*100)/100}] - Update {updates} : Response {response.status_code}")
+            if str(response.status_code)[0] != "2":
+                endLoop = True
+            if RPI:
+                with open(RPI_LED_PATH + "brightness", "w") as f:
+                    f.write("1")
+                    time.sleep(0.1)
+                    if not(endLoop): f.write("0")
+
+    if endLoop:
+        if RPI:
             with open(RPI_LED_PATH + "brightness", "w") as f:
                 f.write("1")
-                time.sleep(0.1)
-                f.write("0")
-
+        exit("Issue occured, stopping program for safety! Final Uptime: {}".format(fancyformat(lastUpdate-initTime)))
 
 
 # with open(RPI_LED_PATH + "brightness", "w") as f:
