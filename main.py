@@ -30,19 +30,20 @@ def log(message):
         print(msg)
 
 # Verify
-log("")
-log(f"Checking Times:")
-log(f"  Checking for new PRs every {round(OBSERVE_PR*100)/100} seconds")
-log(f"  Checking for new Issues every {round(OBSERVE_ISSUE*100)/100} seconds")
-log(f"  Checking for new Releases every {round(OBSERVE_RELEASE*100)/100} seconds")
-log(f"Raspberry Pi: {RPI}")
-log("Press [Enter] to Start!")
+log( "[!] PREPARE")
+log(f"     | Checking Times:")
+log(f"     |  | Checking for new PRs every {round(OBSERVE_PR*100)/100} seconds")
+log(f"     |  | Checking for new Issues every {round(OBSERVE_ISSUE*100)/100} seconds")
+log(f"     |  | Checking for new Releases every {round(OBSERVE_RELEASE*100)/100} seconds")
+log(f"     | Raspberry Pi: {RPI}")
+log( "     | Press [Enter] to Start!")
 if not(input("")) == "":
-    log("  User Cancel!")
+    log( "     |  | User Cancel!")
     exit("Cancelled!") 
 
 '''init'''
-print("  Starting...")
+log("[!] STARTING")
+log("     | Starting...")
 def fancyformat(seconds):
     seconds = round(seconds)
     s = seconds % 60
@@ -61,13 +62,13 @@ def msg(message):
     response = requests.post(WEBHOOK,json=data)
     return response
 def getPRs():
-    log("Fetching PRs...")
+    log("     | Fetching PRs...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls"   )
 def getIssues():
-    log("Fetching Issues...")
+    log("     | Fetching Issues...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  )
 def getReleases():
-    log("Fetching Releases...")
+    log("     | Fetching Releases...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases")
 
 class Storage:
@@ -84,13 +85,13 @@ class Storage:
         return new
         
 
-log("  Fetching data...")
+log("[!] FETCHING START DATA...")
 lastPRs = Storage(getPRs().json())
 lastIssues = Storage(getIssues().json())
 lastReleases = getReleases().json()
 
 '''loop'''
-log("  Loop starting...")
+log("[!] LOOP STARTING...")
 if RPI:
     with open(RPI_LED_PATH + "brightness", "w") as f:
         f.write("0")
@@ -168,7 +169,7 @@ while True:
     if len(messageQueue) > 0:
         for data in messageQueue:
             response = requests.post(WEBHOOK,json=data)
-            log(f"Sent Discord Message : Update {updates} : Response {response.status_code}")
+            log(f"[!]  | Sent Discord Message : Update {updates} : Response {response.status_code}")
             if str(response.status_code)[0] != "2":
                 endLoop = True
 
