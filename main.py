@@ -36,10 +36,10 @@ log(f"     |  | Checking for new PRs every {round(OBSERVE_PR*100)/100} seconds")
 log(f"     |  | Checking for new Issues every {round(OBSERVE_ISSUE*100)/100} seconds")
 log(f"     |  | Checking for new Releases every {round(OBSERVE_RELEASE*100)/100} seconds")
 log(f"     | Raspberry Pi: {RPI}")
-log( "     | Press [Enter] to Start!")
-if not(input("")) == "":
-    log( "     |  | User Cancel!")
-    exit("Cancelled!") 
+# log( "     | Press [Enter] to Start!")
+# if not(input("")) == "":
+#     log( "     |  | User Cancel!")
+#     exit("Cancelled!") 
 
 '''init'''
 log("[!] STARTING")
@@ -55,20 +55,20 @@ def fancyformat(seconds):
     d = seconds % 365
     seconds = (seconds - d)/365
     y = seconds
-    print("Uptime: {:01}:{:02}:{:02}:{:02}:{:02}".format(round(y),round(d),round(h),round(m),round(s)))
+    return "Uptime: {:01}:{:02}:{:02}:{:02}:{:02}".format(round(y),round(d),round(h),round(m),round(s))
 
 def msg(message):
     data = {"content":(str(message)),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP}
     response = requests.post(WEBHOOK,json=data)
     return response
 def getPRs():
-    log("     | Fetching PRs...")
+    log("     | Fetch PRs...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls"   )
 def getIssues():
-    log("     | Fetching Issues...")
+    log("     | Fetch Issues...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  )
 def getReleases():
-    log("     | Fetching Releases...")
+    log("     | Fetch Releases...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases")
 
 class Storage:
@@ -172,6 +172,7 @@ while True:
             log(f"[!]  | Sent Discord Message : Update {updates} : Response {response.status_code}")
             if str(response.status_code)[0] != "2":
                 endLoop = True
+        messageQueue = []
 
     if RPI:
         with open(RPI_LED_PATH + "brightness", "w") as f:

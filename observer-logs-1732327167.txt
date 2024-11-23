@@ -1,0 +1,40 @@
+11/22/2024 08:59:27 PM
+11/22/2024 08:59:27 PM - [!] PREPARE
+11/22/2024 08:59:27 PM -      | Checking Times:
+11/22/2024 08:59:27 PM -      |  | Checking for new PRs every 120.0 seconds
+11/22/2024 08:59:27 PM -      |  | Checking for new Issues every 120.0 seconds
+11/22/2024 08:59:27 PM -      |  | Checking for new Releases every 3600.0 seconds
+11/22/2024 08:59:27 PM -      | Raspberry Pi: False
+11/22/2024 08:59:27 PM - [!] STARTING
+11/22/2024 08:59:27 PM -      | Starting...
+11/22/2024 08:59:27 PM - [!] FETCHING START DATA...
+11/22/2024 08:59:27 PM -      | Fetch PRs...
+11/22/2024 08:59:28 PM -      | Fetch Issues...
+11/22/2024 08:59:29 PM -      | Fetch Releases...
+11/22/2024 08:59:29 PM - [!] LOOP STARTING...
+11/22/2024 08:59:30 PM -      | Fetch PRs...
+11/22/2024 09:01:30 PM -      | Fetch PRs...
+11/22/2024 09:03:31 PM -      | Fetch PRs...
+11/22/2024 09:05:31 PM -      | Fetch PRs...
+11/22/2024 09:07:31 PM -      | Fetch PRs...
+11/22/2024 09:09:32 PM -      | Fetch PRs...
+11/22/2024 09:09:34 PM - [!]  | Sent Discord Message : Update 601 : Response 204
+11/22/2024 09:09:35 PM - [!]  | Sent Discord Message : Update 602 : Response 204
+11/22/2024 09:09:36 PM - [!]  | Sent Discord Message : Update 602 : Response 204
+11/22/2024 09:09:36 PM - [!]  | Sent Discord Message : Update 603 : Response 204
+11/22/2024 09:09:37 PM - [!]  | Sent Discord Message : Update 603 : Response 204
+11/22/2024 09:09:38 PM - [!]  | Sent Discord Message : Update 604 : Response 204
+11/22/2024 09:09:39 PM - [!]  | Sent Discord Message : Update 604 : Response 204
+11/22/2024 09:09:40 PM - [!]  | Sent Discord Message : Update 605 : Response 204
+11/22/2024 09:09:41 PM - [!]  | Sent Discord Message : Update 605 : Response 204
+11/22/2024 09:09:42 PM - [!]  | Sent Discord Message : Update 606 : Response 204
+11/22/2024 09:09:43 PM - [!]  | Sent Discord Message : Update 606 : Response 204
+11/22/2024 09:09:43 PM - [!]  | Sent Discord Message : Update 607 : Response 204
+11/22/2024 09:09:44 PM - [!]  | Sent Discord Message : Update 607 : Response 204
+11/22/2024 09:09:45 PM - [!]  | Sent Discord Message : Update 608 : Response 204
+11/22/2024 09:09:46 PM - [!]  | Sent Discord Message : Update 608 : Response 204
+11/22/2024 09:09:46 PM - [!]  | Sent Discord Message : Update 609 : Response 204
+11/22/2024 09:09:47 PM - [!]  | Sent Discord Message : Update 609 : Response 204
+11/22/2024 09:09:48 PM - [!]  | Sent Discord Message : Update 610 : Response 204
+11/22/2024 09:09:49 PM - [!]  | Sent Discord Message : Update 610 : Response 204
+11/22/2024 09:09:49 PM - [!]  | Sent Discord Message : Update 611 : Response 204
