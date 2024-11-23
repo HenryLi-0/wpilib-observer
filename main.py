@@ -55,15 +55,18 @@ def fancyformat(seconds):
     d = seconds % 365
     seconds = (seconds - d)/365
     y = seconds
-    return "Uptime: {:01}:{:02}:{:02}:{:02}:{:02}".format(round(y),round(d),round(h),round(m),round(s))
+    return "{:01}:{:02}:{:02}:{:02}:{:02}".format(round(y),round(d),round(h),round(m),round(s))
 
 def msg(message):
     data = {"content":(str(message)),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP}
     response = requests.post(WEBHOOK,json=data)
     return response
-def getPRs():
-    log("     | Fetch PRs...")
-    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls"   )
+def getOpenPRs():
+    log("     | Fetch Open PRs...")
+    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls?state=open")
+def getClosedPRs():
+    log("     | Fetch Closed PRs...")
+    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls?state=closed")
 def getIssues():
     log("     | Fetch Issues...")
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  )
@@ -72,21 +75,27 @@ def getReleases():
     return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases")
 
 class Storage:
-    def __init__(self, data):
+    def __init__(self, data, startFromInit = True):
         self.ids = []
         for entry in data: self.ids.append(entry["number"])
+        if startFromInit:
+            self.startFromInit = True
+            self.starting = data[0]["number"]
     def compare(self, newdata):
         temp = []
         for entry in newdata: temp.append(entry["number"])
         new = []
         for item in temp:
-            if not(item in self.ids): new.append(entry)
+            if not(item in self.ids): 
+                if not(self.startFromInit) or (self.startFromInit and entry["number"] > self.starting):
+                    new.append(entry)
         self.ids = temp
         return new
         
 
 log("[!] FETCHING START DATA...")
-lastPRs = Storage(getPRs().json())
+lastOpenPRs = Storage(getOpenPRs().json())
+lastClosedPRs = Storage(getClosedPRs().json(), False)
 lastIssues = Storage(getIssues().json())
 lastReleases = getReleases().json()
 
@@ -109,32 +118,63 @@ while True:
         lastUpdate = time.time()
         if updates % OBSERVE_PR == 0:
             '''PULL REQUESTS'''
-            # [entry["title"], entry["html_url"], entry["number"], entry["user"]["login"], entry["user"]["avatar_url"], entry["created_at"]]
-            response = getPRs()
+            '''OPEN PRS'''
+            response = getOpenPRs()
             if str(response.status_code)[0] == "4":
                 endLoop = True
-            new = lastPRs.compare(response.json())
+            new = lastOpenPRs.compare(response.json())
             for entry in new:
                 messageQueue.append({
                     "content": "<@791376513316552744>",
-                    "username": "WPILIB Observer",
-                    "avatar_url": WEBHOOK_PFP,
+                    "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
                     "embeds": [
                         {
-                            "author": {
-                                "name": str(entry["user"]["login"]),
-                                "icon_url": str(entry["user"]["avatar_url"]) 
-                            },
+                            "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                             "title": "New PR #{}: {}".format(entry["number"], entry["title"]),
                             "url": str(entry["html_url"]),
                             "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
                             "color": 0x26E23B,
-                            "footer": {
-                                "text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))
-                            }
+                            "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                         }
                     ]
                 })
+
+            '''CLOSED PRS'''
+            response = getClosedPRs()
+            if str(response.status_code)[0] == "4":
+                endLoop = True
+            new = lastOpenPRs.compare(response.json())
+            for entry in new:
+                if entry["merged_at"] != "null": # Merged!                
+                    messageQueue.append({
+                        "content": "<@791376513316552744>",
+                        "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                        "embeds": [
+                            {
+                                "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
+                                "title": "Merged PR #{}: {}".format(entry["number"], entry["title"]),
+                                "url": str(entry["html_url"]),
+                                "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
+                                "color": 0xD525E5,
+                                "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
+                            }
+                        ]
+                    })
+                else:
+                    messageQueue.append({
+                        "content": "<@791376513316552744>",
+                        "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                        "embeds": [
+                            {
+                                "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
+                                "title": "Closed PR #{}: {}".format(entry["number"], entry["title"]),
+                                "url": str(entry["html_url"]),
+                                "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
+                                "color": 0xE63226,
+                                "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
+                            }
+                        ]
+                    })
         
         if updates % OBSERVE_ISSUE == 0 and False:
             '''ISSUES'''
