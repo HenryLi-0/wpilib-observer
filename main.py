@@ -59,20 +59,27 @@ def fancyformat(seconds):
 
 def msg(message):
     data = {"content":(str(message)),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP}
-    response = requests.post(WEBHOOK,json=data)
-    return response
+    return requests.post(WEBHOOK,json=data)
 def getOpenPRs():
     log("     | Fetch Open PRs...")
-    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls?state=open")
+    response = requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls?state=open")
+    log("     |  | Response: {}".format(response.status_code))
+    return response
 def getClosedPRs():
     log("     | Fetch Closed PRs...")
-    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls?state=closed")
+    response = requests.get(f"https://api.github.com/repos/{TARGET_REPO}/pulls?state=closed")
+    log("     |  | Response: {}".format(response.status_code))
+    return response
 def getIssues():
     log("     | Fetch Issues...")
-    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  )
+    response = requests.get(f"https://api.github.com/repos/{TARGET_REPO}/issues"  )
+    log("     |  | Response: {}".format(response.status_code))
+    return response
 def getReleases():
     log("     | Fetch Releases...")
-    return requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases")
+    response = requests.get(f"https://api.github.com/repos/{TARGET_REPO}/releases")
+    log("     |  | Response: {}".format(response.status_code))
+    return response
 
 class Storage:
     def __init__(self, data, startFromInit = True):
@@ -132,7 +139,7 @@ while True:
                             "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                             "title": "New PR #{}: {}".format(entry["number"], entry["title"]),
                             "url": str(entry["html_url"]),
-                            "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
+                            "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", "Created at " + entry["created_at"]),
                             "color": 0x26E23B,
                             "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                         }
@@ -145,31 +152,31 @@ while True:
                 endLoop = True
             new = lastOpenPRs.compare(response.json())
             for entry in new:
-                if entry["merged_at"] != "null": # Merged!                
+                if str(entry["merged_at"]) != "null": # Merged!                
                     messageQueue.append({
-                        "content": "<@791376513316552744>",
+                        "content": "",
                         "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
                         "embeds": [
                             {
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Merged PR #{}: {}".format(entry["number"], entry["title"]),
                                 "url": str(entry["html_url"]),
-                                "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
+                                "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", "Created at " + entry["created_at"]),
                                 "color": 0xD525E5,
                                 "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                             }
                         ]
                     })
-                else:
+                else: # Closed!
                     messageQueue.append({
-                        "content": "<@791376513316552744>",
+                        "content": "",
                         "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
                         "embeds": [
                             {
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Closed PR #{}: {}".format(entry["number"], entry["title"]),
                                 "url": str(entry["html_url"]),
-                                "description": "{}\n{}\n{}".format(entry["body"], "TO-DO", entry["created_at"]),
+                                "description": "{}\n{}".format("TO-DO", "Created at " + entry["created_at"]),
                                 "color": 0xE63226,
                                 "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                             }
@@ -180,30 +187,44 @@ while True:
             '''ISSUES'''
             pass
 
-        if updates % OBSERVE_RELEASE == 0 and False:
+        if updates % OBSERVE_RELEASE == 0:
             '''RELEASES'''
 
-            # TO-DO
-            messageQueue.append({
-                "content": "",
-                "username": "WPILIB Observer",
-                "avatar_url": "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png",
-                "embeds": [
-                    {
-                        "author": {
-                            "name": "",
-                            "icon_url": "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png" 
-                        },
-                        "title": f"WAKE UP! NEW RELEASE! {PING}",
-                        "url": "https://discord.com/developers/docs/resources/webhook#webhook-resource",
-                        "description": "[New Release!](https://discord.com/developers/docs/resources/webhook#webhook-resource)",
-                        "color": 0xffaa00,
-                        "footer": {
-                            "text": f"Uptime: {fancyformat(lastUpdate-initTime)}"
+            if str(entry["prerelease"]) == "false":
+                messageQueue.append({
+                    "content": "",
+                    "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                    "embeds": [
+                        {
+                            "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
+                            "title": "New Release: {}".format(entry["name"]),
+                            "url": str(entry["html_url"]),
+                            "description": "{}\n{}\n{}".format("Wake up" + PING + ", there's a new release!", entry["body"], "Created at " + entry["created_at"]),
+                            "color": 0xffaa00,
+                            "footer": {
+                                "text": f"Uptime: {fancyformat(lastUpdate-initTime)}"
+                            }
                         }
-                    }
-                ]
-            })
+                    ]
+                })
+            else:
+               messageQueue.append({
+                    "content": "",
+                    "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                    "embeds": [
+                        {
+                            "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
+                            "title": "New Prerelease: {}".format(entry["name"]),
+                            "url": str(entry["html_url"]),
+                            "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
+                            "color": 0x9F8859,
+                            "footer": {
+                                "text": f"Uptime: {fancyformat(lastUpdate-initTime)}"
+                            }
+                        }
+                    ]
+                })
+ 
         updates += 1
 
     if len(messageQueue) > 0:
@@ -224,16 +245,6 @@ while True:
                 f.write("1")
         log("Issue occured, stopping program for safety! Final Uptime: {}".format(fancyformat(lastUpdate-initTime)))
         exit("Program stopped! Check logs!")
-
-
-# with open(RPI_LED_PATH + "brightness", "w") as f:
-#     f.write("0")
-# time.sleep(0.05)
-# with open(RPI_LED_PATH + "brightness", "w") as f:
-#     f.write("1")
-# time.sleep(0.05)
-
-
 
 
 
