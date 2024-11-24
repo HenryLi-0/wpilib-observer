@@ -9,8 +9,9 @@ OBSERVE_ISSUE = 2*60
 OBSERVE_RELEASE = 60*60
 WEBHOOK = ""
 WEBHOOK_PFP = "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png"
-RELEASE_PING = ""
+OBSERVER_NAME = "WPILIB Observer"
 
+RELEASE_PING = ""
 ERROR_PING = ""
 MAX_ERRORS = 1
 
@@ -58,7 +59,7 @@ def fancyformat(seconds):
     return "{:01}:{:02}:{:02}:{:02}:{:02}".format(round(y),round(d),round(h),round(m),round(s))
 
 def msg(message):
-    data = {"content":(str(message)),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP}
+    data = {"content":(str(message)),"username":OBSERVER_NAME,"avatar_url":WEBHOOK_PFP}
     return requests.post(WEBHOOK,json=data)
 def requestsGet(target):
     response = requests.head("https://api.github.com/rate_limit")
@@ -126,7 +127,7 @@ updates = 0
 messageQueue = []
 errors = 0
 
-requests.post(WEBHOOK,json={"content":"The WPILIB Observer is observing!","username":"WPILIB Observer","avatar_url":WEBHOOK_PFP})
+requests.post(WEBHOOK,json={"content":"{} is observing!".format(OBSERVER_NAME), "username":OBSERVER_NAME, "avatar_url":WEBHOOK_PFP})
 
 while True:
     now = math.floor(time.time())
@@ -141,7 +142,7 @@ while True:
             for entry in new:
                 messageQueue.append({
                     "content": "<@791376513316552744>",
-                    "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                    "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                     "embeds": [{
                             "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                             "title": "New PR #{}: {}".format(entry["number"], entry["title"]),
@@ -159,7 +160,7 @@ while True:
                 if str(entry["merged_at"]) != "null": # Merged!                
                     messageQueue.append({
                         "content": "",
-                        "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                        "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Merged PR #{}: {}".format(entry["number"], entry["title"]),
@@ -171,7 +172,7 @@ while True:
                 else: # Closed!
                     messageQueue.append({
                         "content": "",
-                        "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                        "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Closed PR #{}: {}".format(entry["number"], entry["title"]),
@@ -189,7 +190,7 @@ while True:
                 if str(entry["prerelease"]) == "false":
                     messageQueue.append({
                         "content": "",
-                        "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                        "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
                                 "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
                                 "title": "New Release: {}".format(entry["name"]),
@@ -201,7 +202,7 @@ while True:
                 else:
                     messageQueue.append({
                         "content": "",
-                        "username": "WPILIB Observer", "avatar_url": WEBHOOK_PFP,
+                        "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
                                 "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
                                 "title": "New Prerelease: {}".format(entry["name"]),
@@ -229,5 +230,5 @@ while True:
             with open(RPI_LED_PATH + "brightness", "w") as f:
                 f.write("1")
         log("Allowed errors exceeded! Stopping program for safety! Final Uptime: {}".format(fancyformat(lastUpdate-initTime)))
-        requests.post(WEBHOOK,json={"content":"{} The WPILIB Observer has stopped observing (check logs)!".format(ERROR_PING),"username":"WPILIB Observer","avatar_url":WEBHOOK_PFP})
+        requests.post(WEBHOOK,json={"content":"{} The {} has stopped observing (check logs)!".format(ERROR_PING, OBSERVER_NAME),"username":OBSERVER_NAME,"avatar_url":WEBHOOK_PFP})
         exit("Program stopped! Check logs!")
