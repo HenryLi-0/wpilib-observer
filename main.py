@@ -150,7 +150,7 @@ while True:
                             "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                             "title": "New PR #{}: {}".format(entry["number"], entry["title"]),
                             "url": str(entry["html_url"]),
-                            "description": "{}\n{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
+                            "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
                             "color": 0x26E23B, "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                         }]
                 })
@@ -168,7 +168,7 @@ while True:
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Merged PR #{}: {}".format(entry["number"], entry["title"]),
                                 "url": str(entry["html_url"]),
-                                "description": "{}\n{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
+                                "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
                                 "color": 0xD525E5, "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                             }]
                     })
@@ -180,7 +180,7 @@ while True:
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Closed PR #{}: {}".format(entry["number"], entry["title"]),
                                 "url": str(entry["html_url"]),
-                                "description": "{}\n{}".format("Created at " + entry["created_at"]),
+                                "description": "{}".format("Created at " + entry["created_at"]),
                                 "color": 0xE63226, "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                             }]
                     })
