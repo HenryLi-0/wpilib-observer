@@ -95,27 +95,25 @@ class Storage:
     def __init__(self, data, startFromInit = True):
         self.ids = []
         for entry in data: self.ids.append(entry["id"])
+        self.startFromInit = startFromInit
         if startFromInit:
-            self.startFromInit = True
             if len(data) == 0:
                 self.starting = 0
             else:
                 self.starting = data[0]["id"]
     def compare(self, newdata):
-        temp = []
-        for entry in newdata: temp.append(entry["id"])
         new = []
-        for item in temp:
-            if not(item in self.ids): 
+        for entry in newdata:
+            if not(entry["id"] in self.ids): 
                 if not(self.startFromInit) or (self.startFromInit and entry["id"] > self.starting):
                     new.append(entry)
-        self.ids = temp
+                self.ids.append(entry["id"])
         return new
 
 log("[!] FETCHING START DATA...")
-lastOpenPRs = Storage(getOpenPRs().json())
-lastClosedPRs = Storage(getClosedPRs().json(), False)
-lastReleases = Storage(getReleases().json())
+lastOpenPRs = Storage([])
+lastClosedPRs = Storage([], False)
+lastReleases = Storage([])
 
 '''loop'''
 
@@ -143,8 +141,8 @@ while True:
             if str(response.status_code) != "200": errors += 1
             new = lastOpenPRs.compare(response.json())
             for entry in new:
-                messageQueue.append({
-                    "content": "<@791376513316552744>",
+                messageQueue.append(["Open PR", {
+                    "content": "",
                     "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                     "embeds": [{
                             "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
@@ -153,15 +151,15 @@ while True:
                             "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
                             "color": 0x26E23B, "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                         }]
-                })
+                }])
 
             '''CLOSED PRS'''
             response = getClosedPRs()
             if str(response.status_code) != "200": errors += 1
             new = lastClosedPRs.compare(response.json())
             for entry in new:
-                if str(entry["merged_at"]) != "null": # Merged!                
-                    messageQueue.append({
+                if entry["merged_at"] != None: # Merged!
+                    messageQueue.append(["Merged PR", {
                         "content": "",
                         "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
@@ -171,55 +169,68 @@ while True:
                                 "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
                                 "color": 0xD525E5, "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                             }]
-                    })
+                    }])
                 else: # Closed!
-                    messageQueue.append({
+                    messageQueue.append(["Closed PR", {
                         "content": "",
                         "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
                                 "author": {"name": str(entry["user"]["login"]), "icon_url": str(entry["user"]["avatar_url"])},
                                 "title": "Closed PR #{}: {}".format(entry["number"], entry["title"]),
                                 "url": str(entry["html_url"]),
-                                "description": "{}".format("Created at " + entry["created_at"]),
+                                "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
                                 "color": 0xE63226, "footer": {"text": "Uptime: {}".format(fancyformat(lastUpdate-initTime))}
                             }]
-                    })
+                    }])
         if updates % OBSERVE_RELEASE == 0:
             '''RELEASES'''
             response = getReleases()
             if str(response.status_code) != "200": errors += 1
             new = lastReleases.compare(response.json())
             for entry in new:
-                if str(entry["prerelease"]) == "false":
-                    messageQueue.append({
+                if str(entry["draft"]) == "true":
+                    messageQueue.append(["Draft Release", {
                         "content": "",
                         "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
                         "embeds": [{
                                 "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
-                                "title": "New Release: {}".format(entry["name"]),
+                                "title": "New Draft Release: {}".format(entry["name"]),
                                 "url": str(entry["html_url"]),
                                 "description": "{}\n{}\n{}".format("Wake up" + RELEASE_PING + ", there's a new release!", entry["body"], "Created at " + entry["created_at"]),
-                                "color": 0xffaa00, "footer": {"text": f"Uptime: {fancyformat(lastUpdate-initTime)}"}
-                            }]
-                    })
-                else:
-                    messageQueue.append({
-                        "content": "",
-                        "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
-                        "embeds": [{
-                                "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
-                                "title": "New Prerelease: {}".format(entry["name"]),
-                                "url": str(entry["html_url"]),
-                                "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
                                 "color": 0x9F8859, "footer": {"text": f"Uptime: {fancyformat(lastUpdate-initTime)}"}
                             }]
-                    })
+                    }])
+                else:
+                    if str(entry["prerelease"]) == "false":
+                        messageQueue.append(["Release", {
+                            "content": "",
+                            "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
+                            "embeds": [{
+                                    "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
+                                    "title": "New Release: {}".format(entry["name"]),
+                                    "url": str(entry["html_url"]),
+                                    "description": "{}\n{}\n{}".format("Wake up" + RELEASE_PING + ", there's a new release!", entry["body"], "Created at " + entry["created_at"]),
+                                    "color": 0xffaa00, "footer": {"text": f"Uptime: {fancyformat(lastUpdate-initTime)}"}
+                                }]
+                        }])
+                    else:
+                        messageQueue.append(["Prerelease", {
+                            "content": "",
+                            "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
+                            "embeds": [{
+                                    "author": {"name": str(entry["author"]["login"]), "icon_url": str(entry["author"]["avatar_url"])},
+                                    "title": "New Prerelease: {}".format(entry["name"]),
+                                    "url": str(entry["html_url"]),
+                                    "description": "{}\n{}".format(entry["body"], "Created at " + entry["created_at"]),
+                                    "color": 0x9F8859, "footer": {"text": f"Uptime: {fancyformat(lastUpdate-initTime)}"}
+                                }]
+                        }])
         updates += 1
 
     if len(messageQueue) > 0:
-        for data in messageQueue:
-            response = requests.post(WEBHOOK,json=data)
-            log(f"[!]  | Sent Discord Message : Update {updates} : Response {response.status_code}")
+        for message in messageQueue:
+            response = requests.post(WEBHOOK,json=message[1])
+            log(f"[!]  | Sent Discord Message : {message[0]} Update {updates} : Response {response.status_code}")
             if str(response.status_code)[0] != "2":
                 errors += 1
         messageQueue = []
