@@ -96,14 +96,14 @@ class Storage:
         for entry in data: self.ids.append(entry["id"])
         if startFromInit:
             self.startFromInit = True
-            self.starting = data[0]["number"]
+            self.starting = data[0]["id"]
     def compare(self, newdata):
         temp = []
         for entry in newdata: temp.append(entry["id"])
         new = []
         for item in temp:
             if not(item in self.ids): 
-                if not(self.startFromInit) or (self.startFromInit and entry["number"] > self.starting):
+                if not(self.startFromInit) or (self.startFromInit and entry["id"] > self.starting):
                     new.append(entry)
         self.ids = temp
         return new
