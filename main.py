@@ -3,15 +3,15 @@ import time, requests, os, math
 '''settings'''
 
 # Observing
-TARGET_REPO = "microsoft/vscode" #"wpilibsuite/allwpilib"
+TARGET_REPO = "wpilibsuite/allwpilib"
 OBSERVE_PR = 2*60
 OBSERVE_ISSUE = 2*60
 OBSERVE_RELEASE = 60*60
 WEBHOOK = ""
 WEBHOOK_PFP = "https://cdn.discordapp.com/attachments/1308965461550960761/1308985150989664316/observer_-_wpilib.png"
-RELEASE_PING = "<@&797923529655189515>"
+RELEASE_PING = ""
 
-ERROR_PING = "<@791376513316552744>"
+ERROR_PING = ""
 MAX_ERRORS = 1
 
 # Raspberry Pi
@@ -39,12 +39,9 @@ log(f"     |  | Checking for new PRs every {round(OBSERVE_PR*100)/100} seconds")
 log(f"     |  | Checking for new Issues every {round(OBSERVE_ISSUE*100)/100} seconds")
 log(f"     |  | Checking for new Releases every {round(OBSERVE_RELEASE*100)/100} seconds")
 log(f"     | Raspberry Pi: {RPI}")
-# log( "     | Press [Enter] to Start!")
-# if not(input("")) == "":
-#     log( "     |  | User Cancel!")
-#     exit("Cancelled!") 
 
 '''init'''
+
 log("[!] STARTING")
 log("     | Starting...")
 def fancyformat(seconds):
@@ -110,7 +107,6 @@ class Storage:
                     new.append(entry)
         self.ids = temp
         return new
-        
 
 log("[!] FETCHING START DATA...")
 lastOpenPRs = Storage(getOpenPRs().json())
@@ -118,6 +114,7 @@ lastClosedPRs = Storage(getClosedPRs().json(), False)
 lastReleases = Storage(getReleases().json())
 
 '''loop'''
+
 log("[!] LOOP STARTING...")
 if RPI:
     with open(RPI_LED_PATH + "brightness", "w") as f:
