@@ -3,7 +3,7 @@ import time, requests, os, math
 '''settings'''
 
 # Observing
-TARGET_REPO = "wpilibsuite/allwpilib"
+TARGET_REPO = ""
 OBSERVE_PR = 2*60
 OBSERVE_ISSUE = 2*60
 OBSERVE_RELEASE = 60*60
@@ -97,7 +97,10 @@ class Storage:
         for entry in data: self.ids.append(entry["id"])
         if startFromInit:
             self.startFromInit = True
-            self.starting = data[0]["id"]
+            if len(data) == 0:
+                self.starting = 0
+            else:
+                self.starting = data[0]["id"]
     def compare(self, newdata):
         temp = []
         for entry in newdata: temp.append(entry["id"])
