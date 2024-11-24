@@ -62,13 +62,12 @@ def msg(message):
     data = {"content":(str(message)),"username":OBSERVER_NAME,"avatar_url":WEBHOOK_PFP}
     return requests.post(WEBHOOK,json=data)
 def requestsGet(target):
-    response = requests.head("https://api.github.com/rate_limit")
-    if response.status_code == 200:
-        limits = response.json()
-        if limits['resources']['core']['remaining'] == 0:
-            wait = math.floor(limits['resources']['core']['reset']) - math.floor(time.time()) + 5
-            log("[!]  | Rate Limited! Sleeping for {} seconds...".format(wait))
-            time.sleep(wait)
+    response = requests.get("https://api.github.com/rate_limit")
+    limits = response.json()
+    if limits['resources']['core']['remaining'] == 0:
+        wait = math.floor(limits['resources']['core']['reset']) - math.floor(time.time()) + 5
+        log("[!]  | Rate Limited! Sleeping for {} seconds...".format(wait))
+        time.sleep(wait)
     return requests.get(target)
 def getOpenPRs():
     log("     | Fetch Open PRs...")
@@ -111,9 +110,9 @@ class Storage:
         return new
 
 log("[!] FETCHING START DATA...")
-lastOpenPRs = Storage([])
-lastClosedPRs = Storage([], False)
-lastReleases = Storage([])
+lastOpenPRs = Storage(getOpenPRs().json())
+lastClosedPRs = Storage(getClosedPRs().json(), False)
+lastReleases = Storage(getReleases().json())
 
 '''loop'''
 
@@ -201,7 +200,7 @@ while True:
                             }]
                     }])
                 else:
-                    if str(entry["prerelease"]) == "false":
+                    if not(entry["prerelease"]):
                         messageQueue.append(["Release", {
                             "content": "",
                             "username": OBSERVER_NAME, "avatar_url": WEBHOOK_PFP,
