@@ -158,7 +158,7 @@ while True:
             '''CLOSED PRS'''
             response = getClosedPRs()
             if str(response.status_code) != "200": errors += 1
-            new = lastOpenPRs.compare(response.json())
+            new = lastClosedPRs.compare(response.json())
             for entry in new:
                 if str(entry["merged_at"]) != "null": # Merged!                
                     messageQueue.append({
