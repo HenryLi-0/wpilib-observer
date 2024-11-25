@@ -2,8 +2,7 @@
 
 ![](</wpilib observer 128x128.png>)
 
-(the name and picture is a reference to a late 2000s/early 2010s sci-fi tv show)
-
+(the name and picture is a reference to a [late 2000s/early 2010s sci-fi tv show](https://en.m.wikipedia.org/wiki/Fringe_(TV_series)))
 
 ### Goal
 
