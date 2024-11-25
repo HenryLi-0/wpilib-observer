@@ -7,7 +7,7 @@
 
 ### Goal
 
-The Observer was created to send a message on Discord whenever a new PR or Release is created for a specific repository, using the GitHub API and Discord Webhooks! (since, as far as i researched, its not possible to setup webhooks directly for repositories you dont have administrative permissions in?) Currently still looking for any bugs or weird behaviors...
+The Observer was created to send a message on Discord whenever a new PR or Release is created for a specific repository, using the GitHub API and Discord Webhooks! (since, as far as i researched, its not possible to setup webhooks directly for repositories you dont have administrative permissions in?) Currently still looking for any bugs or weird behaviors... (this is my first time with the GitHub API and running something continuously on a raspberry pi)
 
 
 ### Setup
@@ -24,7 +24,7 @@ Here's steps I used for a `Raspberry Pi Zero 2W` (realistically, this should be 
 
 
 ### Useful Github API Links and Docs
-
+ 
 - https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
 - https://api.github.com/repos/wpilibsuite/allwpilib/issues
 - https://api.github.com/repos/wpilibsuite/allwpilib/pulls

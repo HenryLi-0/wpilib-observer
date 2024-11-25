@@ -3,7 +3,7 @@ import time, requests, os, math
 '''settings'''
 
 # Observing
-TARGET_REPO = ""
+TARGET_REPO = "wpilibsuite/allwpilib"
 OBSERVE_PR = 2*60
 OBSERVE_ISSUE = 2*60
 OBSERVE_RELEASE = 60*60
